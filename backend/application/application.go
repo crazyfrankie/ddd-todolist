@@ -8,33 +8,36 @@ import (
 	"github.com/crazyfrankie/ddd-todolist/backend/application/user"
 )
 
-type services struct {
+type UserService = user.UserApplicationService
+type TaskService = task.TaskApplicationService
+
+type Services struct {
 	infra   *appinfra.AppDependencies
-	userSvc *user.UserApplicationService
-	taskSvc *task.TaskApplicationService
+	UserSvc *user.UserApplicationService
+	TaskSvc *task.TaskApplicationService
 }
 
-func Init(ctx context.Context) error {
+func Init(ctx context.Context) (*Services, error) {
 	infra, err := appinfra.Init(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = initServices(ctx, infra)
+	services, err := initServices(ctx, infra)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return nil
+	return services, nil
 }
 
-func initServices(ctx context.Context, infra *appinfra.AppDependencies) (*services, error) {
+func initServices(ctx context.Context, infra *appinfra.AppDependencies) (*Services, error) {
 	userSvc := user.InitService(ctx, infra.DB, infra.Storage, infra.IDGenSVC)
 	taskSvc := task.InitService(ctx, infra.DB, infra.IDGenSVC)
 
-	return &services{
+	return &Services{
 		infra:   infra,
-		userSvc: userSvc,
-		taskSvc: taskSvc,
+		UserSvc: userSvc,
+		TaskSvc: taskSvc,
 	}, nil
 }

@@ -12,12 +12,14 @@ import (
 )
 
 func InitService(ctx context.Context, db *gorm.DB, oss storage.Storage, idgen idgen.IDGenerator) *UserApplicationService {
-	UserApplicationSVC.DomainSVC = service.NewUserDomain(ctx, &service.Components{
+	user := &UserApplicationService{}
+
+	user.DomainSVC = service.NewUserDomain(ctx, &service.Components{
 		IconOSS:  oss,
 		IDGen:    idgen,
 		UserRepo: repository.NewUserRepo(db),
 	})
-	UserApplicationSVC.oss = oss
+	user.oss = oss
 
-	return UserApplicationSVC
+	return user
 }

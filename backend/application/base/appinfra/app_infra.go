@@ -6,9 +6,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/idgen"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/imagex"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/cache/redis"
+	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/idgen"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/imagex/veimagex"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/mysql"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/storage"
@@ -33,6 +33,11 @@ func Init(ctx context.Context) (*AppDependencies, error) {
 	}
 
 	deps.CacheCli = redis.New()
+
+	deps.IDGenSVC, err = idgen.New(deps.CacheCli)
+	if err != nil {
+		return nil, err
+	}
 
 	deps.ImageXClient, err = initImageX(ctx)
 	if err != nil {

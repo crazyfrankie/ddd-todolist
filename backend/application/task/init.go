@@ -11,10 +11,12 @@ import (
 )
 
 func InitService(ctx context.Context, db *gorm.DB, idgen idgen.IDGenerator) *TaskApplicationService {
-	TaskAppliCationSVC.DomainSVC = service.NewTaskDomain(ctx, &service.Components{
+	task := &TaskApplicationService{}
+
+	task.DomainSVC = service.NewTaskDomain(ctx, &service.Components{
 		IDGen:    idgen,
 		TaskRepo: repository.NewTaskRepository(db),
 	})
 
-	return TaskAppliCationSVC
+	return task
 }
