@@ -1,0 +1,5 @@
+server:
+  addr: "your-addr"
+
+mysql:
+  dsn: "your-dsn"
