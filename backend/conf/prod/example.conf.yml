@@ -3,3 +3,11 @@ server:
 
 mysql:
   dsn: "your-dsn"
+
+redis:
+  addr: ""
+  password: ""
+
+jwt:
+  signAlgo: ""
+  secretKey: ""

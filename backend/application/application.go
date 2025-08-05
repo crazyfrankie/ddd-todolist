@@ -32,7 +32,7 @@ func Init(ctx context.Context) (*Services, error) {
 }
 
 func initServices(ctx context.Context, infra *appinfra.AppDependencies) (*Services, error) {
-	userSvc := user.InitService(ctx, infra.DB, infra.Storage, infra.IDGenSVC)
+	userSvc := user.InitService(ctx, infra.DB, infra.Storage, infra.IDGenSVC, infra.JWTGen)
 	taskSvc := task.InitService(ctx, infra.DB, infra.IDGenSVC)
 
 	return &Services{

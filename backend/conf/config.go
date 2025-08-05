@@ -19,6 +19,7 @@ type Config struct {
 	Server Server `yaml:"server"`
 	MySQL  MySQL  `yaml:"mysql"`
 	Redis  Redis  `yaml:"redis"`
+	JWT    JWT    `yaml:"jwt"`
 }
 
 type Server struct {
@@ -32,6 +33,11 @@ type MySQL struct {
 type Redis struct {
 	Addr     string `yaml:"addr"`
 	Password string `yaml:"password"`
+}
+
+type JWT struct {
+	SignAlgo  string `yaml:"signAlgo"`
+	SecretKey string `yaml:"secretKey"`
 }
 
 func GetConf() *Config {

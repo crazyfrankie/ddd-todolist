@@ -5,12 +5,16 @@ USE todolist;
 CREATE TABLE `user`(
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary Key ID',
     `name` VARCHAR(255) NOT NULL COMMENT 'User Nickname',
+    `unique_name` VARCHAR(255) NOT NULL COMMENT 'User Unique Name',
     `email` VARCHAR(255) NOT NULL COMMENT 'Email',
     `password` VARCHAR(255) NOT NULL COMMENT 'Password (Encrypted)',
+    `icon_uri` VARCHAR(512) NOT NULL COMMENT 'User Icon URI',
+    `user_verified` TINYINT(1) NOT NULL COMMENT 'User Verification Status',
     `created_at` BIGINT NOT NULL COMMENT 'Creation Time (Milliseconds)',
     `updated_at` BIGINT NOT NULL COMMENT 'Update Time (Milliseconds)',
     `deleted_at` BIGINT NULL DEFAULT NULL COMMENT 'Deletion Time (Milliseconds)',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_unique_name` (`unique_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='User Table';
 
 CREATE TABLE `task` (

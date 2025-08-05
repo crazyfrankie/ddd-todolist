@@ -1,5 +1,7 @@
 package consts
 
+import "time"
+
 const (
 	VeImageXAK         = "VE_IMAGEX_AK"
 	VeImageXSK         = "VE_IMAGEX_SK"
@@ -28,4 +30,9 @@ const (
 const (
 	ApplyUploadActionURI = "/api/common/upload/apply_upload_action"
 	UploadURI            = "/api/common/upload"
+)
+
+const (
+	SessionMaxAgeSecond    = 30 * 24 * 60 * 60
+	DefaultSessionDuration = SessionMaxAgeSecond * time.Second
 )

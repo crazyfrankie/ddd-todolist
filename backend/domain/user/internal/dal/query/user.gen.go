@@ -30,8 +30,11 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewInt64(tableName, "id")
 	_user.Name = field.NewString(tableName, "name")
+	_user.UniqueName = field.NewString(tableName, "unique_name")
 	_user.Email = field.NewString(tableName, "email")
 	_user.Password = field.NewString(tableName, "password")
+	_user.IconURI = field.NewString(tableName, "icon_uri")
+	_user.UserVerified = field.NewBool(tableName, "user_verified")
 	_user.CreatedAt = field.NewInt64(tableName, "created_at")
 	_user.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_user.DeletedAt = field.NewInt64(tableName, "deleted_at")
@@ -45,14 +48,17 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo userDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // Primary Key ID
-	Name      field.String // User Nickname
-	Email     field.String // Email
-	Password  field.String // Password (Encrypted)
-	CreatedAt field.Int64  // Creation Time (Milliseconds)
-	UpdatedAt field.Int64  // Update Time (Milliseconds)
-	DeletedAt field.Int64  // Deletion Time (Milliseconds)
+	ALL          field.Asterisk
+	ID           field.Int64  // Primary Key ID
+	Name         field.String // User Nickname
+	UniqueName   field.String // User Unique Name
+	Email        field.String // Email
+	Password     field.String // Password (Encrypted)
+	IconURI      field.String // User Icon URI
+	UserVerified field.Bool   // User Verification Status
+	CreatedAt    field.Int64  // Creation Time (Milliseconds)
+	UpdatedAt    field.Int64  // Update Time (Milliseconds)
+	DeletedAt    field.Int64  // Deletion Time (Milliseconds)
 
 	fieldMap map[string]field.Expr
 }
@@ -71,8 +77,11 @@ func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
 	u.Name = field.NewString(table, "name")
+	u.UniqueName = field.NewString(table, "unique_name")
 	u.Email = field.NewString(table, "email")
 	u.Password = field.NewString(table, "password")
+	u.IconURI = field.NewString(table, "icon_uri")
+	u.UserVerified = field.NewBool(table, "user_verified")
 	u.CreatedAt = field.NewInt64(table, "created_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
@@ -100,11 +109,14 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 10)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["name"] = u.Name
+	u.fieldMap["unique_name"] = u.UniqueName
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["password"] = u.Password
+	u.fieldMap["icon_uri"] = u.IconURI
+	u.fieldMap["user_verified"] = u.UserVerified
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
