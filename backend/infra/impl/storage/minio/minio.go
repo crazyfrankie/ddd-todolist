@@ -13,11 +13,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/imagex"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/storage"
-	"github.com/crazyfrankie/ddd-todolist/backend/infra/impl/storage/proxy"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/ctxcache"
-	"github.com/crazyfrankie/ddd-todolist/backend/types/consts"
 )
 
 type minioClient struct {
@@ -27,14 +23,6 @@ type minioClient struct {
 	secretAccessKey string
 	bucketName      string
 	endpoint        string
-}
-
-func NewStorageImagex(ctx context.Context, endpoint, accessKeyID, secretAccessKey, bucketName string, useSSL bool) (imagex.ImageX, error) {
-	m, err := getMinioClient(ctx, endpoint, accessKeyID, secretAccessKey, bucketName, useSSL)
-	if err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func getMinioClient(_ context.Context, endpoint, accessKeyID, secretAccessKey, bucketName string, useSSL bool) (*minioClient, error) {
@@ -191,56 +179,5 @@ func (m *minioClient) GetObjectUrl(ctx context.Context, objectKey string, opts .
 		return "", fmt.Errorf("GetObjectUrl failed: %v", err)
 	}
 
-	// logs.CtxDebugf(ctx, "[GetObjectUrl] origin presignedURL.String = %s", presignedURL.String())
-	ok, proxyURL := proxy.CheckIfNeedReplaceHost(ctx, presignedURL.String())
-	if ok {
-		return proxyURL, nil
-	}
-
 	return presignedURL.String(), nil
-}
-
-func (m *minioClient) GetUploadHost(ctx context.Context) string {
-	currentHost, ok := ctxcache.Get[string](ctx, consts.HostKeyInCtx)
-	if !ok {
-		return ""
-	}
-	return currentHost + consts.ApplyUploadActionURI
-}
-
-func (m *minioClient) GetServerID() string {
-	return ""
-}
-
-func (m *minioClient) GetUploadAuth(ctx context.Context, opt ...imagex.UploadAuthOpt) (*imagex.SecurityToken, error) {
-	scheme, ok := ctxcache.Get[string](ctx, consts.RequestSchemeKeyInCtx)
-	if !ok {
-		return nil, fmt.Errorf("upload host scheme not exist, %s", scheme)
-	}
-	return &imagex.SecurityToken{
-		AccessKeyID:     "",
-		SecretAccessKey: "",
-		SessionToken:    "",
-		ExpiredTime:     time.Now().Add(time.Hour).Format("2006-01-02 15:04:05"),
-		CurrentTime:     time.Now().Format("2006-01-02 15:04:05"),
-		HostScheme:      scheme,
-	}, nil
-}
-
-func (m *minioClient) GetResourceURL(ctx context.Context, uri string, opts ...imagex.GetResourceOpt) (*imagex.ResourceURL, error) {
-	url, err := m.GetObjectUrl(ctx, uri)
-	if err != nil {
-		return nil, err
-	}
-	return &imagex.ResourceURL{
-		URL: url,
-	}, nil
-}
-
-func (m *minioClient) Upload(ctx context.Context, data []byte, opts ...imagex.UploadAuthOpt) (*imagex.UploadResult, error) {
-	return nil, nil
-}
-
-func (m *minioClient) GetUploadAuthWithExpire(ctx context.Context, expire time.Duration, opt ...imagex.UploadAuthOpt) (*imagex.SecurityToken, error) {
-	return nil, nil
 }

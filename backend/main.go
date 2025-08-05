@@ -27,7 +27,7 @@ func main() {
 	}
 
 	g.Add(func() error {
-		log.Printf("Server is running at http://localhost%s\n", conf.GetConf().Server)
+		log.Printf("Server is running at http://localhost%s\n", conf.GetConf().Server.Addr)
 		return httpSrv.ListenAndServe()
 	}, func(err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
