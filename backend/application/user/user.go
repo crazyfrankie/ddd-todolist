@@ -134,7 +134,7 @@ func (u *UserApplicationService) ResetUserPassword(ctx context.Context, req *mod
 	return nil
 }
 
-func (u *UserApplicationService) PassportAccountInfoV2(ctx context.Context) (
+func (u *UserApplicationService) GetUserInfo(ctx context.Context) (
 	resp *model.User, err error,
 ) {
 	userID := ctxutil.MustGetUIDFromCtx(ctx)
@@ -149,7 +149,7 @@ func (u *UserApplicationService) PassportAccountInfoV2(ctx context.Context) (
 
 func userDo2PassportTo(userDo *entity.User) *model.User {
 	return &model.User{
-		UserIDStr:      userDo.UserID,
+		UserID:         userDo.UserID,
 		Name:           userDo.Name,
 		ScreenName:     ptr.Of(userDo.Name),
 		UserUniqueName: userDo.UniqueName,

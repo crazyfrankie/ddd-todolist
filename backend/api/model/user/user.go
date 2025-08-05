@@ -16,7 +16,7 @@ type UpdateAvatarRequest struct {
 
 type UpdateProfileRequest struct {
 	Name           *string `json:"name,omitempty"`
-	UserUniqueName *string `json:"user_unique_name,omitempty"`
+	UserUniqueName *string `json:"userUniqueName,omitempty"`
 }
 
 type ResetUserPassword struct {
@@ -25,11 +25,11 @@ type ResetUserPassword struct {
 }
 
 type User struct {
-	UserIDStr      int64   `json:"user_id_str,string,required"`
+	UserID         int64   `json:"userID,string,required"`
 	Name           string  `json:"name"`
 	UserUniqueName string  `json:"user_unique_name"`
 	Email          string  `json:"email"`
-	AvatarURL      string  `json:"avatar_url"`
+	AvatarURL      string  `json:"avatarURL"`
 	ScreenName     *string `json:"screen_name"`
-	UserCreateTime int64   `json:"user_create_time"`
+	UserCreateTime int64   `json:"userCreateTime"`
 }

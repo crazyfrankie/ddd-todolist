@@ -15,8 +15,6 @@ func NewUserRepo(db *gorm.DB) UserRepository {
 
 type UserRepository interface {
 	GetUsersByEmail(ctx context.Context, email string) (*model.User, bool, error)
-	UpdateSessionKey(ctx context.Context, userID int64, sessionKey string) error
-	ClearSessionKey(ctx context.Context, userID int64) error
 	UpdatePassword(ctx context.Context, email, password string) error
 	GetUserByID(ctx context.Context, userID int64) (*model.User, error)
 	UpdateAvatar(ctx context.Context, userID int64, iconURI string) error
@@ -24,6 +22,5 @@ type UserRepository interface {
 	UpdateProfile(ctx context.Context, userID int64, updates map[string]any) error
 	CheckEmailExist(ctx context.Context, email string) (bool, error)
 	CreateUser(ctx context.Context, user *model.User) error
-	GetUserBySessionKey(ctx context.Context, sessionKey string) (*model.User, bool, error)
 	GetUsersByIDs(ctx context.Context, userIDs []int64) ([]*model.User, error)
 }

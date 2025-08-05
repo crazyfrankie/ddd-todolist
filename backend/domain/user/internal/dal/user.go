@@ -34,26 +34,6 @@ func (dao *UserDAO) GetUsersByEmail(ctx context.Context, email string) (*model.U
 	return user, true, err
 }
 
-func (dao *UserDAO) UpdateSessionKey(ctx context.Context, userID int64, sessionKey string) error {
-	_, err := dao.query.User.WithContext(ctx).Where(
-		dao.query.User.ID.Eq(userID),
-	).Updates(map[string]any{
-		"session_key": sessionKey,
-		"updated_at":  time.Now().UnixMilli(),
-	})
-	return err
-}
-
-func (dao *UserDAO) ClearSessionKey(ctx context.Context, userID int64) error {
-	_, err := dao.query.User.WithContext(ctx).
-		Where(
-			dao.query.User.ID.Eq(userID),
-		).
-		UpdateColumn(dao.query.User.SessionKey, "")
-
-	return err
-}
-
 func (dao *UserDAO) UpdatePassword(ctx context.Context, email, password string) error {
 	_, err := dao.query.User.WithContext(ctx).Where(
 		dao.query.User.Email.Eq(email),
@@ -121,21 +101,6 @@ func (dao *UserDAO) CheckEmailExist(ctx context.Context, email string) (bool, er
 // CreateUser Create a new user
 func (dao *UserDAO) CreateUser(ctx context.Context, user *model.User) error {
 	return dao.query.User.WithContext(ctx).Create(user)
-}
-
-// GetUserBySessionKey Query users based on session key
-func (dao *UserDAO) GetUserBySessionKey(ctx context.Context, sessionKey string) (*model.User, bool, error) {
-	sm, err := dao.query.User.WithContext(ctx).Where(
-		dao.query.User.SessionKey.Eq(sessionKey),
-	).First()
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, false, nil
-	}
-	if err != nil {
-		return nil, false, err
-	}
-
-	return sm, true, nil
 }
 
 // GetUsersByIDs Query user information in batches

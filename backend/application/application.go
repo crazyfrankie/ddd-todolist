@@ -12,7 +12,7 @@ type UserService = user.UserApplicationService
 type TaskService = task.TaskApplicationService
 
 type Services struct {
-	infra   *appinfra.AppDependencies
+	Infra   *appinfra.AppDependencies
 	UserSvc *user.UserApplicationService
 	TaskSvc *task.TaskApplicationService
 }
@@ -36,7 +36,7 @@ func initServices(ctx context.Context, infra *appinfra.AppDependencies) (*Servic
 	taskSvc := task.InitService(ctx, infra.DB, infra.IDGenSVC)
 
 	return &Services{
-		infra:   infra,
+		Infra:   infra,
 		UserSvc: userSvc,
 		TaskSvc: taskSvc,
 	}, nil

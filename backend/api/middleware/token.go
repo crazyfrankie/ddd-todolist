@@ -1,13 +1,16 @@
 package middleware
 
 import (
-	"context"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/token"
+	"github.com/crazyfrankie/ddd-todolist/backend/pkg/ctxcache"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/response"
+	"github.com/crazyfrankie/ddd-todolist/backend/types/consts"
 )
 
 type AuthnHandler struct {
@@ -38,12 +41,12 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 		}
 
 		if claims, err := h.token.ParseToken(access); err == nil {
-			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "user_id", claims.UID))
+			ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, (*claims)["user_id"].(int64))
 			c.Next()
 			return
 		}
 
-		refresh, err := c.Cookie("robot_refresh")
+		refresh, err := c.Cookie("todolist_refresh")
 		if err != nil {
 			response.Abort(c, errno.ErrUnauthorized)
 			return
@@ -53,9 +56,11 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 			response.Abort(c, errno.ErrUnauthorized)
 			return
 		}
-		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "user_id", uid))
+		ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, uid)
 
-		//util.SetAuthorization(c, tokens)
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.Header("x-access-token", tokens[0])
+		c.SetCookie("todolist_refresh", tokens[1], int(time.Hour*24), "/", "", false, true)
 
 		c.Next()
 	}
