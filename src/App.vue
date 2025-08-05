@@ -1,26 +1,33 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <AppHeader />
+    <main class="main-content">
+      <router-view />
+    </main>
+  </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import { onMounted } from 'vue'
+import { useAuthStore } from './stores/auth'
+import AppHeader from './components/AppHeader.vue'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+const authStore = useAuthStore()
+
+onMounted(async () => {
+  // Try to fetch user profile if token exists
+  await authStore.fetchProfile()
+})
 </script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
 }
 </style>

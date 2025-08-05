@@ -102,14 +102,14 @@ func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, int64, error)
 	expire, _ := refreshClaims.GetExpirationTime()
 	if expire.Sub(now) < expire.Sub(issat.Time)/3 {
 		// try refresh
-		refresh, err = s.newToken((*refreshClaims)["user_id"].(int64), time.Hour*24*30)
+		refresh, err = s.newToken(int64((*refreshClaims)["user_id"].(float64)), time.Hour*24*30)
 		err = s.cmd.Set(context.Background(), tokenKey((*refreshClaims)["user_id"].(int64), ua), refresh, time.Hour*24*30).Err()
 		if err != nil {
 			return nil, 0, err
 		}
 	}
 
-	return []string{access, refresh}, (*refreshClaims)["user_id"].(int64), nil
+	return []string{access, refresh}, int64((*refreshClaims)["user_id"].(float64)), nil
 }
 
 func (s *jwtImpl) CleanToken(ctx context.Context, uid int64, ua string) error {

@@ -256,7 +256,7 @@ func (u *userImpl) UpdateProfile(ctx context.Context, req *UpdateProfileRequest)
 	if req.Name != nil {
 		updates["name"] = ptr.From(req.Name)
 	}
-	
+
 	err = u.UserRepo.UpdateProfile(ctx, req.UserID, updates)
 	if err != nil {
 		return err
@@ -314,14 +314,13 @@ func verifyPassword(password, encodedHash string) error {
 
 func userPo2Do(model *model.User, iconURL string) *userEntity.User {
 	return &userEntity.User{
-		UserID:       model.ID,
-		Name:         model.Name,
-		UniqueName:   model.UniqueName,
-		Email:        model.Email,
-		IconURI:      model.IconURI,
-		IconURL:      iconURL,
-		UserVerified: model.UserVerified,
-		CreatedAt:    model.CreatedAt,
-		UpdatedAt:    model.UpdatedAt,
+		UserID:     model.ID,
+		Name:       model.Name,
+		UniqueName: model.UniqueName,
+		Email:      model.Email,
+		IconURI:    model.IconURI,
+		IconURL:    iconURL,
+		CreatedAt:  model.CreatedAt,
+		UpdatedAt:  model.UpdatedAt,
 	}
 }

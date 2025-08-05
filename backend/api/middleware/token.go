@@ -41,7 +41,7 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 		}
 
 		if claims, err := h.token.ParseToken(access); err == nil {
-			ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, (*claims)["user_id"].(int64))
+			ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, int64((*claims)["user_id"].(float64)))
 			c.Next()
 			return
 		}
