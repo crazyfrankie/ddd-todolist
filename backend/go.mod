@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/crazyfrankie/frx v0.0.3
 	github.com/crazyfrankie/gem v0.1.1
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.10.1
@@ -16,9 +17,8 @@ require (
 	github.com/kr/pretty v0.3.1
 	github.com/minio/minio-go/v7 v7.0.95
 	github.com/oklog/run v1.2.0
-	github.com/redis/go-redis/v9 v9.11.0
+	github.com/redis/go-redis/v9 v9.12.0
 	github.com/spf13/viper v1.20.1
-	github.com/volcengine/volc-sdk-golang v1.0.216
 	golang.org/x/crypto v0.39.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/plugin/dbresolver v1.6.2
@@ -26,10 +26,8 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/avast/retry-go v3.0.0+incompatible // indirect
-	github.com/bytedance/sonic v1.13.3 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
-	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
+	github.com/bytedance/sonic v1.14.0 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -70,8 +68,7 @@ require (
 	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.18.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
