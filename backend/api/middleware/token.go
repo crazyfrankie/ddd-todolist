@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/crazyfrankie/frx/errorx"
 	"github.com/gin-gonic/gin"
 
+	"github.com/crazyfrankie/ddd-todolist/backend/api/httputil"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/token"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/ctxcache"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/response"
 	"github.com/crazyfrankie/ddd-todolist/backend/types/consts"
+	"github.com/crazyfrankie/ddd-todolist/backend/types/errno"
 )
 
 type AuthnHandler struct {
@@ -36,7 +37,7 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 
 		access, err := h.token.GetAccessToken(c)
 		if err != nil {
-			response.Abort(c, errno.ErrUnauthorized)
+			httputil.InternalError(c, errorx.New(errno.ErrAuthFailedCode, errorx.KV("reason", "missing access_token in header")))
 			return
 		}
 
@@ -48,12 +49,12 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 
 		refresh, err := c.Cookie("todolist_refresh")
 		if err != nil {
-			response.Abort(c, errno.ErrUnauthorized)
+			httputil.InternalError(c, errorx.New(errno.ErrAuthFailedCode, errorx.KV("reason", "missing refresh_token in cookie")))
 			return
 		}
 		tokens, uid, err := h.token.TryRefresh(refresh, c.Request.UserAgent())
 		if err != nil {
-			response.Abort(c, errno.ErrUnauthorized)
+			httputil.InternalError(c, errorx.New(errno.ErrAuthFailedCode, errorx.KV("reason", "try refresh access_token failed")))
 			return
 		}
 		ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, uid)

@@ -1,5 +1,5 @@
 error_code:
-  - name: TaskNotFound
+  - name: ErrTaskNotFound
     code: 2001
     message: task not found
     no_affect_stability: true

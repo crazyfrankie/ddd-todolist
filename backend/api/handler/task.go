@@ -7,8 +7,6 @@ import (
 
 	"github.com/crazyfrankie/ddd-todolist/backend/api/model/task"
 	"github.com/crazyfrankie/ddd-todolist/backend/application"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/response"
 )
 
 type TaskHandler struct {
@@ -36,17 +34,17 @@ func (h *TaskHandler) AddTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req task.CreateTaskRequest
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		resp, err := h.svc.AddTask(c.Request.Context(), &req)
 		if err != nil {
-			response.Error(c, err)
+			internalServerErrorResponse(c, err)
 			return
 		}
 
-		response.SuccessWithData(c, resp)
+		data(c, resp)
 	}
 }
 
@@ -59,11 +57,11 @@ func (h *TaskHandler) GetTaskDetail() gin.HandlerFunc {
 
 		resp, err := h.svc.GetTaskDetail(c.Request.Context(), taskID)
 		if err != nil {
-			response.Error(c, err)
+			internalServerErrorResponse(c, err)
 			return
 		}
 
-		response.SuccessWithData(c, resp)
+		data(c, resp)
 	}
 }
 
@@ -73,11 +71,11 @@ func (h *TaskHandler) GetTaskList() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resp, err := h.svc.GetTaskList(c.Request.Context())
 		if err != nil {
-			response.Error(c, err)
+			internalServerErrorResponse(c, err)
 			return
 		}
 
-		response.SuccessWithData(c, resp)
+		data(c, resp)
 	}
 }
 
@@ -87,17 +85,17 @@ func (h *TaskHandler) UpdateTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req task.UpdateTaskRequest
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		err := h.svc.UpdateTask(c.Request.Context(), &req)
 		if err != nil {
-			response.Error(c, err)
+			internalServerErrorResponse(c, err)
 			return
 		}
 
-		response.Success(c)
+		success(c)
 	}
 }
 
@@ -110,10 +108,10 @@ func (h *TaskHandler) DeleteTask() gin.HandlerFunc {
 
 		err := h.svc.DeleteTask(c.Request.Context(), taskID)
 		if err != nil {
-			response.Error(c, err)
+			internalServerErrorResponse(c, err)
 			return
 		}
 
-		response.Success(c)
+		success(c)
 	}
 }

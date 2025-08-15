@@ -1,21 +1,21 @@
 error_code:
-  - name: UserNotFound
+  - name: ErrUserNotFound
     code: 1001
     message: user not found
     no_affect_stability: true
-  - name: EmailExist
+  - name: ErrEmailExist
     code: 1002
     message: email already exists
     no_affect_stability: true
-  - name: UniqueNameExist
+  - name: ErrUniqueNameExist
     code: 1003
     message: unique name already exists
     no_affect_stability: true
-  - name: AuthFailed
+  - name: ErrAuthFailed
     code: 1004
     message: authentication failed
     no_affect_stability: true
-  - name: EmailOrPasswordIncorrect
+  - name: ErrEmailOrPasswordIncorrect
     code: 1005
     message: email or password is incorrect
     no_affect_stability: true

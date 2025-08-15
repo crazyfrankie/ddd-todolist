@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -11,9 +10,7 @@ import (
 
 	"github.com/crazyfrankie/ddd-todolist/backend/api/model/user"
 	"github.com/crazyfrankie/ddd-todolist/backend/application"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/logs"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/response"
 )
 
 type UserHandler struct {
@@ -43,13 +40,13 @@ func (h *UserHandler) UserRegister() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req user.EmailRegisterRequest
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		userInfo, tokens, err := h.svc.UserRegister(c.Request.Context(), c.Request.UserAgent(), &req)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
@@ -57,7 +54,7 @@ func (h *UserHandler) UserRegister() gin.HandlerFunc {
 		c.Header("x-access-token", tokens[0])
 		c.SetCookie("todolist_refresh", tokens[1], int(time.Hour*24), "/", "", false, true)
 
-		response.SuccessWithData(c, userInfo)
+		data(c, userInfo)
 	}
 }
 
@@ -67,13 +64,13 @@ func (h *UserHandler) UserLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req user.EmailLoginRequest
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		userInfo, tokens, err := h.svc.UserLogin(c.Request.Context(), c.Request.UserAgent(), &req)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
@@ -81,7 +78,7 @@ func (h *UserHandler) UserLogin() gin.HandlerFunc {
 		c.Header("x-access-token", tokens[0])
 		c.SetCookie("todolist_refresh", tokens[1], int(time.Hour*24), "/", "", false, true)
 
-		response.SuccessWithData(c, userInfo)
+		data(c, userInfo)
 	}
 }
 
@@ -91,13 +88,13 @@ func (h *UserHandler) UserLogout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		err := h.svc.UserLogout(c.Request.Context(), c.Request.UserAgent())
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		c.SetCookie("todolist_refresh", "", int(time.Hour*24), "/", "", false, true)
 
-		response.Success(c)
+		success(c)
 	}
 }
 
@@ -107,11 +104,11 @@ func (h *UserHandler) GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resp, err := h.svc.GetUserInfo(c.Request.Context())
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
-		response.SuccessWithData(c, resp)
+		data(c, resp)
 	}
 }
 
@@ -124,27 +121,27 @@ func (h *UserHandler) UpdateUserAvatar() gin.HandlerFunc {
 		file, err := c.FormFile("avatar")
 		if err != nil {
 			logs.CtxErrorf(c.Request.Context(), "Get Avatar Fail failed, err=%v", err)
-			response.Error(c, errno.ErrParams.AppendBizMessage(errors.New("missing avatar file")))
+			invalidParamRequestResponse(c, "missing avatar file")
 			return
 		}
 
 		// Check file type
 		if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
-			response.Error(c, errno.ErrParams.AppendBizMessage(errors.New("invalid file type, only image allowed")))
+			invalidParamRequestResponse(c, "invalid file type, only image allowed")
 			return
 		}
 
 		// Read file content
 		src, err := file.Open()
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 		defer src.Close()
 
 		fileContent, err := io.ReadAll(src)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
@@ -153,11 +150,11 @@ func (h *UserHandler) UpdateUserAvatar() gin.HandlerFunc {
 
 		url, err := h.svc.UpdateUserAvatar(c.Request.Context(), mimeType, &req)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
-		response.SuccessWithData(c, gin.H{"web_uri": url})
+		data(c, gin.H{"web_uri": url})
 	}
 }
 
@@ -167,17 +164,17 @@ func (h *UserHandler) UpdateUserProfile() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req user.UpdateProfileRequest
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		err := h.svc.UpdateUserProfile(c.Request.Context(), &req)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
-		response.Success(c)
+		success(c)
 	}
 }
 
@@ -187,16 +184,16 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req user.ResetUserPassword
 		if err := c.ShouldBind(&req); err != nil {
-			response.Error(c, errno.ErrParams)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
 		err := h.svc.ResetUserPassword(c.Request.Context(), &req)
 		if err != nil {
-			response.Error(c, err)
+			invalidParamRequestResponse(c, err.Error())
 			return
 		}
 
-		response.Success(c)
+		success(c)
 	}
 }
