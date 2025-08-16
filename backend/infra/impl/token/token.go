@@ -81,20 +81,20 @@ func (s *jwtImpl) ParseToken(token string) (*jwt.MapClaims, error) {
 	return nil, errors.New("jwt is invalid")
 }
 
-func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, int64, error) {
+func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, *jwt.MapClaims, error) {
 	refreshClaims, err := s.ParseToken(refresh)
 	if err != nil {
-		return nil, 0, fmt.Errorf("invalid refresh jwt")
+		return nil, nil, fmt.Errorf("invalid refresh jwt")
 	}
 
-	res, err := s.cmd.Get(context.Background(), tokenKey((*refreshClaims)["user_id"].(int64), ua)).Result()
+	res, err := s.cmd.Get(context.Background(), tokenKey(int64((*refreshClaims)["user_id"].(float64)), ua)).Result()
 	if err != nil || res != refresh {
-		return nil, 0, errors.New("jwt invalid or revoked")
+		return nil, nil, errors.New("jwt invalid or revoked")
 	}
 
-	access, err := s.newToken((*refreshClaims)["user_id"].(int64), time.Hour)
+	access, err := s.newToken(int64((*refreshClaims)["user_id"].(float64)), time.Hour)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, err
 	}
 
 	now := time.Now()
@@ -105,11 +105,11 @@ func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, int64, error)
 		refresh, err = s.newToken(int64((*refreshClaims)["user_id"].(float64)), time.Hour*24*30)
 		err = s.cmd.Set(context.Background(), tokenKey((*refreshClaims)["user_id"].(int64), ua), refresh, time.Hour*24*30).Err()
 		if err != nil {
-			return nil, 0, err
+			return nil, nil, err
 		}
 	}
 
-	return []string{access, refresh}, int64((*refreshClaims)["user_id"].(float64)), nil
+	return []string{access, refresh}, refreshClaims, nil
 }
 
 func (s *jwtImpl) CleanToken(ctx context.Context, uid int64, ua string) error {

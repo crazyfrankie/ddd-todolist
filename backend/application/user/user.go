@@ -11,7 +11,6 @@ import (
 	user "github.com/crazyfrankie/ddd-todolist/backend/domain/user/service"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/storage"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/token"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/ptr"
 )
 
@@ -33,7 +32,7 @@ func (u *UserApplicationService) UserRegister(ctx context.Context, ua string, re
 ) {
 	// Verify that the email format is legitimate
 	if !isValidEmail(req.Email) {
-		return nil, nil, errno.ErrParams.AppendBizMessage(errors.New("invalid email"))
+		return nil, nil, errors.New("invalid email")
 	}
 
 	userInfo, err := u.DomainSVC.Create(ctx, &user.CreateUserRequest{
@@ -97,7 +96,7 @@ func (u *UserApplicationService) UpdateUserAvatar(ctx context.Context, mimeType 
 	case "image/webp":
 		ext = "webp"
 	default:
-		return "", errno.ErrParams.AppendBizMessage(errors.New("unsupported image type"))
+		return "", errors.New("unsupported image type")
 	}
 
 	uid := ctxutil.MustGetUIDFromCtx(ctx)

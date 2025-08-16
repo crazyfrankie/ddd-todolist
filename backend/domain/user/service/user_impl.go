@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
+	"github.com/crazyfrankie/frx/errorx"
 	"golang.org/x/crypto/bcrypt"
 
 	uploadEntity "github.com/crazyfrankie/ddd-todolist/backend/domain/upload/entity"
@@ -18,9 +18,9 @@ import (
 	"github.com/crazyfrankie/ddd-todolist/backend/domain/user/repository"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/idgen"
 	"github.com/crazyfrankie/ddd-todolist/backend/infra/contract/storage"
-	"github.com/crazyfrankie/ddd-todolist/backend/pkg/errno"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/logs"
 	"github.com/crazyfrankie/ddd-todolist/backend/pkg/ptr"
+	"github.com/crazyfrankie/ddd-todolist/backend/types/errno"
 )
 
 type Components struct {
@@ -46,7 +46,7 @@ func (u *userImpl) Create(ctx context.Context, req *CreateUserRequest) (user *en
 	}
 
 	if exist {
-		return nil, errno.ErrExists.AppendBizMessage(fmt.Errorf("email exists, %s", req.Email))
+		return nil, errorx.New(errno.ErrEmailExistCode)
 	}
 
 	if req.UniqueName != "" {
@@ -55,7 +55,7 @@ func (u *userImpl) Create(ctx context.Context, req *CreateUserRequest) (user *en
 			return nil, err
 		}
 		if exist {
-			return nil, errno.ErrExists.AppendBizMessage(fmt.Errorf("unique name exists, %s", req.UniqueName))
+			return nil, errorx.New(errno.ErrUniqueNameExistCode)
 		}
 	}
 
@@ -129,7 +129,7 @@ func (u *userImpl) Login(ctx context.Context, email, password string) (user *ent
 		return nil, err
 	}
 	if !exist {
-		return nil, errno.ErrInternalServer
+		return nil, errorx.New(errno.ErrUserNotFoundCode)
 	}
 
 	err = verifyPassword(password, userModel.Password)
@@ -161,7 +161,7 @@ func (u *userImpl) ResetPassword(ctx context.Context, email, password string) (e
 
 func (u *userImpl) GetUserInfo(ctx context.Context, userID int64) (user *entity.User, err error) {
 	if userID <= 0 {
-		return nil, errno.ErrParams.AppendBizMessage(fmt.Errorf("invalid user id : %d", userID))
+		return nil, fmt.Errorf("invalid user id")
 	}
 
 	userModel, err := u.UserRepo.GetUserByID(ctx, userID)
@@ -200,7 +200,7 @@ func (u *userImpl) UpdateAvatar(ctx context.Context, userID int64, ext string, i
 func (u *userImpl) ValidateProfileUpdate(ctx context.Context, req *ValidateProfileUpdateRequest) (
 	resp *ValidateProfileUpdateResponse, err error) {
 	if req.UniqueName == nil && req.Email == nil {
-		return nil, errno.ErrParams.AppendBizMessage(errors.New("missing parameter"))
+		return nil, fmt.Errorf("missing parameter")
 	}
 
 	if req.UniqueName != nil {
@@ -247,7 +247,7 @@ func (u *userImpl) UpdateProfile(ctx context.Context, req *UpdateProfileRequest)
 		}
 
 		if resp.Code != ValidateSuccess {
-			return errno.ErrParams.AppendBizMessage(errors.New(resp.Msg))
+			return fmt.Errorf("invalid params, %w", err)
 		}
 
 		updates["unique_name"] = ptr.From(req.UniqueName)
@@ -272,7 +272,7 @@ func (u *userImpl) GetUserProfiles(ctx context.Context, userID int64) (user *ent
 	}
 
 	if len(userInfos) == 0 {
-		return nil, errno.ErrNotFound.AppendBizMessage(fmt.Errorf("user id %d", userID))
+		return nil, errorx.New(errno.ErrUserNotFoundCode)
 	}
 
 	return userInfos[0], nil
