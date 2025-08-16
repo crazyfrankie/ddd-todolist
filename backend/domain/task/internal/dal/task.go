@@ -52,17 +52,10 @@ func (t *TaskDAO) UpdateTask(ctx context.Context, taskID int64, updates map[stri
 }
 
 func (t *TaskDAO) DeleteTask(ctx context.Context, taskID int64) error {
-	return t.query.Transaction(func(tx *query.Query) error {
-		task, err := tx.WithContext(ctx).Task.Where(t.query.Task.ID.Eq(taskID)).First()
-		if err != nil {
-			return err
-		}
+	_, err := t.query.WithContext(ctx).Task.Where(t.query.Task.ID.Eq(taskID)).Delete()
+	if err != nil {
+		return err
+	}
 
-		_, err = tx.WithContext(ctx).Task.Delete(task)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	return nil
 }
