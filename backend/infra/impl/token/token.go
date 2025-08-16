@@ -54,10 +54,12 @@ func (s *jwtImpl) GenerateToken(uid int64, ua string) ([]string, error) {
 
 func (s *jwtImpl) newToken(uid int64, duration time.Duration) (string, error) {
 	now := time.Now()
-	claims := &jwt.MapClaims{
-		"user_id": uid,
-		"iat":     jwt.NewNumericDate(now),
-		"exp":     jwt.NewNumericDate(now.Add(duration)),
+	claims := &token.Claims{
+		UserID: uid,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(duration)),
+		},
 	}
 	newToken := jwt.NewWithClaims(jwt.GetSigningMethod(s.signAlgo), claims)
 	str, err := newToken.SignedString(s.secretKey)
@@ -65,15 +67,15 @@ func (s *jwtImpl) newToken(uid int64, duration time.Duration) (string, error) {
 	return str, err
 }
 
-func (s *jwtImpl) ParseToken(token string) (*jwt.MapClaims, error) {
-	t, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *jwtImpl) ParseToken(tk string) (*token.Claims, error) {
+	t, err := jwt.ParseWithClaims(tk, &token.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return s.secretKey, nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := t.Claims.(*jwt.MapClaims)
+	claims, ok := t.Claims.(*token.Claims)
 	if ok {
 		return claims, nil
 	}
@@ -81,18 +83,18 @@ func (s *jwtImpl) ParseToken(token string) (*jwt.MapClaims, error) {
 	return nil, errors.New("jwt is invalid")
 }
 
-func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, *jwt.MapClaims, error) {
+func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, *token.Claims, error) {
 	refreshClaims, err := s.ParseToken(refresh)
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid refresh jwt")
 	}
 
-	res, err := s.cmd.Get(context.Background(), tokenKey(int64((*refreshClaims)["user_id"].(float64)), ua)).Result()
+	res, err := s.cmd.Get(context.Background(), tokenKey(refreshClaims.UserID, ua)).Result()
 	if err != nil || res != refresh {
 		return nil, nil, errors.New("jwt invalid or revoked")
 	}
 
-	access, err := s.newToken(int64((*refreshClaims)["user_id"].(float64)), time.Hour)
+	access, err := s.newToken(refreshClaims.UserID, time.Hour)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -102,8 +104,8 @@ func (s *jwtImpl) TryRefresh(refresh string, ua string) ([]string, *jwt.MapClaim
 	expire, _ := refreshClaims.GetExpirationTime()
 	if expire.Sub(now) < expire.Sub(issat.Time)/3 {
 		// try refresh
-		refresh, err = s.newToken(int64((*refreshClaims)["user_id"].(float64)), time.Hour*24*30)
-		err = s.cmd.Set(context.Background(), tokenKey((*refreshClaims)["user_id"].(int64), ua), refresh, time.Hour*24*30).Err()
+		refresh, err = s.newToken(refreshClaims.UserID, time.Hour*24*30)
+		err = s.cmd.Set(context.Background(), tokenKey(refreshClaims.UserID, ua), refresh, time.Hour*24*30).Err()
 		if err != nil {
 			return nil, nil, err
 		}

@@ -42,7 +42,7 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 		}
 
 		if claims, err := h.token.ParseToken(access); err == nil {
-			ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, int64((*claims)["user_id"].(float64)))
+			ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, claims.UserID)
 			c.Next()
 			return
 		}
@@ -57,7 +57,7 @@ func (h *AuthnHandler) JWTAuthMW() gin.HandlerFunc {
 			httputil.InternalError(c, errorx.New(errno.ErrAuthFailedCode, errorx.KV("reason", "try refresh access_token failed")))
 			return
 		}
-		ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, int64((*claims)["user_id"].(float64)))
+		ctxcache.Store(c.Request.Context(), consts.SessionDataKeyInCtx, claims.UserID)
 
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.Header("x-access-token", tokens[0])
