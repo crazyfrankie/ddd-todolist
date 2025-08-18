@@ -9,9 +9,9 @@ import (
 
 func SetLogID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		logID := uuid.New()
-		ctx := context.WithValue(c.Request.Context(), "log-id", logID)
+		logID := uuid.New().String()
+		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "log-id", logID))
 
-		c.Request = c.Request.WithContext(ctx)
+		c.Next()
 	}
 }

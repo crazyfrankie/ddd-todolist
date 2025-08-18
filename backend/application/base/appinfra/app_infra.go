@@ -38,14 +38,10 @@ func Init(ctx context.Context) (*AppDependencies, error) {
 		return nil, err
 	}
 
-	deps.Storage, err = initStorage(ctx)
+	deps.Storage, err = storage.New(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	return deps, nil
-}
-
-func initStorage(ctx context.Context) (storage.Storage, error) {
-	return storage.New(ctx)
 }
