@@ -13,6 +13,7 @@ import (
 type data struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
+	Data    any    `json:"data"`
 }
 
 func BadRequest(c *gin.Context, errMsg string) {
