@@ -23,6 +23,7 @@ func Init() (*gin.Engine, error) {
 	srv := gin.Default()
 	srv.Use(middleware.CtxCache())
 	srv.Use(middleware.CORS())
+	srv.Use(middleware.SetLogID())
 	srv.Use(middleware.NewAuthnHandler(services.Infra.JWTGen).
 		IgnorePath("/api/user/register").
 		IgnorePath("/api/user/login").
