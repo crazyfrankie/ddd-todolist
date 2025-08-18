@@ -46,7 +46,7 @@ func (h *UserHandler) UserRegister() gin.HandlerFunc {
 
 		userInfo, tokens, err := h.svc.UserRegister(c.Request.Context(), c.Request.UserAgent(), &req)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -70,7 +70,7 @@ func (h *UserHandler) UserLogin() gin.HandlerFunc {
 
 		userInfo, tokens, err := h.svc.UserLogin(c.Request.Context(), c.Request.UserAgent(), &req)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -104,7 +104,7 @@ func (h *UserHandler) GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resp, err := h.svc.GetUserInfo(c.Request.Context())
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -141,7 +141,7 @@ func (h *UserHandler) UpdateUserAvatar() gin.HandlerFunc {
 
 		fileContent, err := io.ReadAll(src)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -150,7 +150,7 @@ func (h *UserHandler) UpdateUserAvatar() gin.HandlerFunc {
 
 		url, err := h.svc.UpdateUserAvatar(c.Request.Context(), mimeType, &req)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -170,7 +170,7 @@ func (h *UserHandler) UpdateUserProfile() gin.HandlerFunc {
 
 		err := h.svc.UpdateUserProfile(c.Request.Context(), &req)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
@@ -190,7 +190,7 @@ func (h *UserHandler) ResetPassword() gin.HandlerFunc {
 
 		err := h.svc.ResetUserPassword(c.Request.Context(), &req)
 		if err != nil {
-			invalidParamRequestResponse(c, err.Error())
+			internalServerErrorResponse(c, err)
 			return
 		}
 
